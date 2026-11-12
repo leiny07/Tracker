@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NHL Scouting & Prospect RPG Habit Tracker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy-deep: #070B14;
+      --navy-card: #0F172A;
+      --navy-elevated: #141E36;
+      --crimson: #C8102E;
+      --crimson-bright: #E11D48;
+      --gold: #F59E0B;
+      --gold-bright: #FBBF24;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      max-width: 100%;
+    }
+
+    body {
+      background-color: var(--navy-deep);
+      color: #f8fafc;
+      font-family: 'Inter', sans-serif;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(200, 16, 46, 0.16) 0%, transparent 42%),
+        radial-gradient(circle at 88% 18%, rgba(245, 158, 11, 0.08) 0%, transparent 38%),
+        radial-gradient(circle at 75% 88%, rgba(30, 58, 138, 0.14) 0%, transparent 48%);
+      min-height: 100vh;
+    }
+
+    .font-broadcast {
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.035em;
+    }
+
+    .font-mono-stat {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Refined Broadcast Card with crisp 1px border & subtle inner top specular highlight */
+    .scouting-panel {
+      background: linear-gradient(180deg, rgba(20, 30, 54, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+        0 14px 34px -12px rgba(0, 0, 0, 0.78);
+    }
+
+    .crimson-header {
+      background: linear-gradient(135deg, #C8102E 0%, #880B20 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+    }
+
+    .stat-pill {
+      background: rgba(7, 11, 20, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
+    }
+
+    /* Ergonomic Custom Checkbox Styling */
+    .hockey-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 1.55rem;
+      height: 1.55rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.38);
+      border-radius: 0.45rem;
+      background-color: #070B14;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .hockey-checkbox:hover {
+      border-color: #FBBF24;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+    }
+
+    .hockey-checkbox:checked {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      border-color: #FEF3C7;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .hockey-checkbox:checked::after {
+      content: "✓";
+      color: #070B14;
+      font-weight: 900;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    /* Namaz 5-in-1 Box Checkbox */
+    .namaz-checkbox {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 2rem;
+      height: 2rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      border-radius: 0.5rem;
+      background-color: #070B14;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .namaz-checkbox:hover {
+      border-color: #34d399;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+    }
+
+    .namaz-checkbox:checked {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      border-color: #a7f3d0;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.42);
+    }
+
+    .namaz-checkbox:checked::after {
+      content: "✓";
+      color: #064e3b;
+      font-weight: 900;
+      font-size: 1.05rem;
+    }
+
+    /* Interactive Water Droplet Styling */
+    .water-droplet-btn {
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, background-color 0.2s ease;
+    }
+    .water-droplet-btn:hover {
+      transform: translateY(-2px) scale(1.06);
+    }
+    .water-droplet-btn:active {
+      transform: scale(0.95);
+    }
+    .droplet-filled {
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
+    }
+
+    /* Smooth progress bars */
+    .stat-bar-fill {
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease;
+    }
+
+    /* Subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070B14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #273554;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="px-3 py-3 sm:px-5 sm:py-5 md:px-6 md:py-6">
+
+  <!-- Toast / Broadcast Alert Banner -->
+  <div id="toast-container" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col gap-2 sm:max-w-sm pointer-events-none"></div>
+
+  <div class="max-w-6xl mx-auto space-y-5">
+
+    <!-- =========================================================
+         TOP BROADCAST HEADER & PROSPECT HERO DOSSIER
+         ========================================================= -->
+    <header class="scouting-panel rounded-2xl overflow-hidden">
+      <!-- Top Broadcast Utility Strip -->
+      <div class="crimson-header px-4 py-2.5 sm:px-5 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-lg bg-black/30 border border-white/20 flex items-center justify-center text-sm shadow-inner" aria-hidden="true">🏒</span>
+          <div>
+            <p class="text-xs sm:text-sm text-white font-extrabold tracking-wide leading-tight">
+              NHL Central Scouting • Shift Tracker
+            </p>
+            <p id="current-date-label" class="text-[11px] text-rose-100/90 font-medium leading-tight"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openBonusModal()" class="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer">
+            <span>⚡</span>
+            <span>Milestone Bonus</span>
+          </button>
+          <button onclick="openFinishDayModal()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 active:scale-[0.98] text-slate-950 font-extrabold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer">
+            <span>🔔</span>
+            <span>Finish Day</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Content Body -->
+      <div class="p-4 sm:p-5 space-y-4">
+
+        <!-- Row 1: Active Prospect Selector Bar & Identity -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3.5 pb-4 border-b border-white/10">
+          
+          <!-- Left: Jersey + Editable Name/Metadata -->
+          <div class="flex items-center gap-3.5 min-w-0 flex-1">
+            <!-- Jersey Number Crest -->
+            <div class="w-14 h-14 sm:w-15 sm:h-15 rounded-xl bg-gradient-to-b from-[#C8102E] to-[#880B20] border border-white/30 flex flex-col items-center justify-center shrink-0 shadow-lg ring-1 ring-black/40">
+              <span class="text-[9px] font-mono-stat uppercase tracking-widest text-rose-200 leading-none mb-0.5">NO.</span>
+              <input id="prospect-number" type="text" maxlength="2" value="7" onchange="saveProfile()"
+                class="w-full text-center bg-transparent font-mono-stat font-extrabold text-xl sm:text-2xl text-white focus:outline-none focus:underline leading-none"
+                title="Click to edit Jersey Number" />
+            </div>
+
+            <!-- Name, Position, Club & Month Played -->
+            <div class="min-w-0 flex-1 space-y-1.5">
+              <input id="prospect-name" type="text" value="Carlos Perez" onchange="saveProfile()"
+                class="w-full bg-transparent font-broadcast font-extrabold text-xl sm:text-2xl text-white border-b border-transparent hover:border-white/25 focus:border-amber-400 focus:outline-none truncate leading-tight"
+                title="Click to edit Prospect Name" />
+
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <select id="prospect-position" onchange="saveProfile()"
+                  class="bg-[#070B14] border border-white/20 rounded-lg px-2 py-1 text-xs font-mono-stat font-bold text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer">
+                  <option value="F">F</option>
+                  <option value="C">C</option>
+                  <option value="LW">LW</option>
+                  <option value="RW">RW</option>
+                  <option value="D">D</option>
+                  <option value="G">G</option>
+                </select>
+
+                <div class="flex items-center gap-1.5 bg-[#070B14]/80 border border-white/15 rounded-lg px-2.5 py-1">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold">Club</span>
+                  <input id="prospect-team" type="text" value="Boston University" onchange="saveProfile()"
+                    class="bg-transparent text-rose-200 hover:text-white focus:text-amber-300 focus:outline-none text-xs font-bold w-32 sm:w-40 truncate"
+                    title="Click to edit College / Team" />
+                </div>
+
+                <div class="flex items-center gap-1 bg-[#070B14]/80 border border-amber-400/25 rounded-lg px-2 py-1">
+                  <span class="text-[10px]">📅</span>
+                  <input id="prospect-month" type="text" maxlength="14" value="Nov 2026" onchange="saveProfile()"
+                    class="bg-transparent font-mono-stat font-bold text-amber-300 focus:outline-none text-[11px] w-20 text-center"
+                    title="Month Played (e.g. Nov 2026)" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Roster Switcher & + New Character -->
+          <div class="flex items-center gap-2 bg-[#070B14]/75 border border-white/15 rounded-xl p-2 shrink-0">
+            <div class="flex flex-col min-w-0 flex-1 sm:flex-initial">
+              <span class="text-[9px] uppercase tracking-widest text-slate-400 font-bold px-1 mb-0.5">Roster Switcher</span>
+              <select id="prospect-switcher" onchange="switchProspect(this.value)"
+                class="bg-[#0F172A] border border-white/20 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white focus:outline-none focus:border-amber-400 cursor-pointer w-full sm:w-44 truncate"
+                title="Switch Active Prospect">
+              </select>
+            </div>
+            <button onclick="openNewProspectModal()"
+              class="self-end px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-extrabold text-xs shadow transition cursor-pointer shrink-0">
+              + New
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 2: Sleek Overall Rating & Draft Tier Progress Bar -->
+        <div class="stat-pill rounded-xl p-3.5 sm:p-4 space-y-2.5">
+          <div class="flex items-end justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs uppercase tracking-widest text-slate-200 font-extrabold">Overall Prospect Rating</span>
+                <span class="hidden sm:inline-block text-[10px] font-mono-stat text-slate-400 bg-white/5 px-2 py-0.5 rounded">8-Attribute Avg</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Builds smoothly from 25 OVR toward Top-10 Draft status over a 30-day cycle</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span id="overall-rating" class="font-mono-stat text-3xl sm:text-4xl font-extrabold text-amber-400 leading-none">25</span>
+              <span class="text-xs text-slate-400 font-mono-stat font-bold">/99</span>
+            </div>
+          </div>
+
+          <!-- Progress Track with Milestone Ticks -->
+          <div class="relative">
+            <div class="w-full h-4 bg-[#070B14] border border-white/25 rounded-full p-0.5 overflow-hidden shadow-inner">
+              <div id="overall-bar" class="h-full rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 stat-bar-fill shadow-[0_0_12px_rgba(251,191,36,0.45)]" style="width: 25%"></div>
+            </div>
+            <!-- Visual Milestone Tick Markers -->
+            <div class="grid grid-cols-4 text-[10px] font-mono-stat mt-1.5 text-slate-400">
+              <div class="text-left"><span class="text-slate-300 font-bold">&lt;35</span> AHL</div>
+              <div class="text-center"><span class="text-sky-300 font-bold">35</span> 2nd Rd</div>
+              <div class="text-center"><span class="text-emerald-300 font-bold">42</span> 1st Rd</div>
+              <div class="text-right"><span class="text-amber-300 font-bold">50+</span> Top 10</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Balanced 3-Card Stat Pill Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+          <div class="stat-pill rounded-xl px-3.5 py-2.5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-center">
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Draft Stock</span>
+            <span id="draft-projection" class="text-sm sm:text-base font-extrabold text-white sm:mt-0.5">📉 AHL</span>
+          </div>
+
+          <div class="stat-pill rounded-xl px-3.5 py-2.5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-center">
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Today's Shift</span>
+            <span class="font-mono-stat text-base sm:text-lg font-extrabold text-emerald-400 sm:mt-0.5">+<span id="today-points">0</span> pts</span>
+          </div>
+
+          <div class="stat-pill rounded-xl px-3.5 py-2.5 flex items-center justify-between sm:flex-col sm:items-start sm:justify-center">
+            <span class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Perk Wallet</span>
+            <span class="font-mono-stat text-base sm:text-lg font-extrabold text-amber-400 sm:mt-0.5"><span id="wallet-points">0</span> pts</span>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- =========================================================
+         MAIN TWO-COLUMN WORKSPACE GRID
+         ========================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- LEFT COLUMN (7 Cols): ATTRIBUTES, LIVE SCOUTING DISPATCH & LEADERBOARD -->
+      <section class="lg:col-span-7 space-y-5">
+
+        <!-- 1. PLAYER ATTRIBUTES & DAILY SHIFTS -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">⚡</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                PLAYER ATTRIBUTES &amp; DAILY SHIFTS
+              </h2>
+            </div>
+            <span class="text-[10px] font-mono-stat font-bold bg-black/35 px-2.5 py-1 rounded-lg border border-white/20 text-rose-100">
+              7 Core Shifts
+            </span>
+          </div>
+
+          <!-- Column Labels -->
+          <div class="grid grid-cols-12 gap-2 px-4 py-2 bg-[#070B14]/80 border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+            <div class="col-span-5 sm:col-span-5">Daily Shift</div>
+            <div class="col-span-4 sm:col-span-3">Attribute</div>
+            <div class="col-span-3 sm:col-span-4 text-right">Rating</div>
+          </div>
+
+          <!-- Dynamic Attribute Rows -->
+          <div id="attributes-list" class="divide-y divide-white/10">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- 2. LIVE SCOUTING DISPATCH -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">📡</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                CENTRAL SCOUTING — LIVE DISPATCH
+              </h2>
+            </div>
+            <span id="player-line-status" class="text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-black/40 border border-amber-400/50 text-amber-300 shrink-0">
+              Morning Skate
+            </span>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <!-- Arena Status Strip -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-[#070B14]/85 border border-white/15 rounded-xl px-3.5 py-2.5">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span id="dispatch-headline" class="text-xs font-bold text-white truncate">
+                  Boston University (#7 • F) — Scouting Evaluation
+                </span>
+              </div>
+              <span id="dispatch-scout-tag" class="text-[10px] font-mono-stat font-semibold text-slate-300 bg-white/5 px-2 py-0.5 rounded shrink-0">
+                In Attendance: 2 NHL Scouts
+              </span>
+            </div>
+
+            <!-- Field Evaluation Box -->
+            <div class="bg-[#070B14]/90 border border-white/10 border-l-4 border-l-amber-400 px-4 py-3 rounded-xl space-y-2">
+              <div class="flex items-center justify-between gap-2 text-[10px] font-mono-stat uppercase tracking-wider text-slate-400">
+                <span>NHL Central Scouting • Field Report</span>
+                <span id="dispatch-grade-tag" class="text-amber-300 font-extrabold bg-amber-400/10 border border-amber-400/30 px-2 py-0.5 rounded">Report Grade: INC</span>
+              </div>
+              <p id="dispatch-narrative" class="text-xs sm:text-[13px] text-slate-200 leading-relaxed">
+                <!-- Populated dynamically -->
+              </p>
+            </div>
+
+            <!-- Scout's Next-Shift Note -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 bg-[#141E36] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs">
+              <span class="text-slate-300 font-bold shrink-0">📋 Scout's Note:</span>
+              <span id="dispatch-next-focus" class="font-semibold text-amber-300 sm:text-right leading-snug">
+                Log "Tough shit" (+6 Grit) to boost forecheck pace &amp; top-six playmaking projection.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. PROSPECT LEADERBOARD & MONTHLY DRAFT BOARD -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">🏆</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                PROSPECT LEADERBOARD &amp; DRAFT BOARD
+              </h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="roster-count-badge" class="text-[10px] font-mono-stat font-bold px-2 py-0.5 rounded-lg bg-black/35 border border-white/20 text-slate-200">
+                1 Prospect
+              </span>
+              <button onclick="openNewProspectModal()"
+                class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 active:scale-[0.98] text-slate-950 font-extrabold text-[11px] shadow transition cursor-pointer">
+                + New Prospect
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-300">
+              Ranked by <strong class="text-white">Overall Rating</strong> &amp; career points banked. Switch prospects each month or open any scouting dossier.
+            </p>
+            <div id="leaderboard-list" class="space-y-2.5">
+              <!-- Populated dynamically by JS -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN (5 Cols): DISCIPLINE NAMAZ, HYDRATION, GAME PLAN TO-DOS & CONTRACT PERKS SHOP -->
+      <aside class="lg:col-span-5 space-y-5 lg:sticky lg:top-5">
+
+        <!-- 1. DISCIPLINE — NAMAZ (5-IN-1 BOX) -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">🕌</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                DISCIPLINE — NAMAZ
+              </h2>
+            </div>
+            <span id="namaz-bonus-badge" class="text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-slate-300 transition-all">
+              0 / 5 (+7 Locked)
+            </span>
+          </div>
+
+          <div class="p-4 space-y-3.5">
+            <!-- Discipline Rating Strip (8th Attribute in OVR Average) -->
+            <div class="flex items-center justify-between gap-3 bg-[#070B14]/85 border border-white/15 rounded-xl px-3.5 py-2.5">
+              <div>
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block leading-none">Discipline Attribute</span>
+                <span class="text-[11px] text-emerald-400 font-medium mt-1 block">+7 pts for 5/5 clean sheet</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <span id="discipline-rating" class="font-mono-stat font-extrabold text-base text-white">25</span>
+                <div class="w-20 h-3 bg-[#0F172A] border border-white/25 rounded-full p-0.5 overflow-hidden">
+                  <div id="discipline-bar" class="h-full rounded-full bg-emerald-400 stat-bar-fill" style="width: 25%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5-in-1 Prayer Grid -->
+            <div class="bg-[#070B14]/90 border border-white/20 rounded-xl p-3">
+              <div class="grid grid-cols-5 gap-2 text-center">
+                <label class="flex flex-col items-center gap-1.5 py-1 rounded-lg hover:bg-white/5 cursor-pointer group transition">
+                  <span class="text-[11px] font-bold text-slate-300 group-hover:text-white">Fajr</span>
+                  <input type="checkbox" id="namaz-0" onchange="toggleNamaz(0)" class="namaz-checkbox" />
+                </label>
+                <label class="flex flex-col items-center gap-1.5 py-1 rounded-lg hover:bg-white/5 cursor-pointer group transition">
+                  <span class="text-[11px] font-bold text-slate-300 group-hover:text-white">Dhuhr</span>
+                  <input type="checkbox" id="namaz-1" onchange="toggleNamaz(1)" class="namaz-checkbox" />
+                </label>
+                <label class="flex flex-col items-center gap-1.5 py-1 rounded-lg hover:bg-white/5 cursor-pointer group transition">
+                  <span class="text-[11px] font-bold text-slate-300 group-hover:text-white">Asr</span>
+                  <input type="checkbox" id="namaz-2" onchange="toggleNamaz(2)" class="namaz-checkbox" />
+                </label>
+                <label class="flex flex-col items-center gap-1.5 py-1 rounded-lg hover:bg-white/5 cursor-pointer group transition">
+                  <span class="text-[11px] font-bold text-slate-300 group-hover:text-white">Maghrib</span>
+                  <input type="checkbox" id="namaz-3" onchange="toggleNamaz(3)" class="namaz-checkbox" />
+                </label>
+                <label class="flex flex-col items-center gap-1.5 py-1 rounded-lg hover:bg-white/5 cursor-pointer group transition">
+                  <span class="text-[11px] font-bold text-slate-300 group-hover:text-white">Isha</span>
+                  <input type="checkbox" id="namaz-4" onchange="toggleNamaz(4)" class="namaz-checkbox" />
+                </label>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 px-0.5">
+              <span>Clean Sheet Streak: <strong id="namaz-streak" class="text-white font-mono-stat">0d</strong></span>
+              <span id="namaz-status-text" class="text-slate-400">All 5 = +7 Discipline pts</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. HYDRATION TRACKER -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">💧</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                HYDRATION
+              </h2>
+            </div>
+            <span id="water-bonus-badge" class="text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-sky-300 transition-all">
+              0 / 2,250 ml (+3)
+            </span>
+          </div>
+
+          <div class="p-4 space-y-3.5">
+            <!-- Inline Drop Size & Goal Drops Controls -->
+            <div class="grid grid-cols-2 gap-2.5 bg-[#070B14]/85 border border-white/15 rounded-xl px-3 py-2 text-xs">
+              <label for="water-ml-input" class="flex items-center justify-between gap-1.5 text-slate-300 font-semibold">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Drop Size</span>
+                <div class="flex items-center gap-1">
+                  <input id="water-ml-input" type="number" min="50" max="2000" step="25" value="250" onchange="updateWaterSettings()"
+                    class="w-14 bg-[#0F172A] border border-white/25 rounded-lg px-1.5 py-1 text-center font-mono-stat font-bold text-sky-300 focus:outline-none focus:border-sky-400" />
+                  <span class="text-[10px] text-slate-400 font-mono-stat">ml</span>
+                </div>
+              </label>
+
+              <label for="water-count-input" class="flex items-center justify-between gap-1.5 text-slate-300 font-semibold border-l border-white/10 pl-2.5">
+                <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Goal Drops</span>
+                <input id="water-count-input" type="number" min="1" max="16" step="1" value="9" onchange="updateWaterSettings()"
+                  class="w-12 bg-[#0F172A] border border-white/25 rounded-lg px-1.5 py-1 text-center font-mono-stat font-bold text-sky-300 focus:outline-none focus:border-sky-400" />
+              </label>
+            </div>
+
+            <!-- Interactive SVG Droplets & Volume Bar -->
+            <div class="bg-[#070B14]/90 border border-white/20 rounded-xl p-3 space-y-3">
+              <div id="water-droplets-grid" class="flex flex-wrap items-center justify-center gap-1.5">
+                <!-- Populated dynamically with SVG droplets -->
+              </div>
+
+              <div class="space-y-1.5">
+                <div class="w-full h-2.5 bg-[#0F172A] border border-white/20 rounded-full overflow-hidden">
+                  <div id="water-progress-bar" class="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-300 stat-bar-fill" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-mono-stat">
+                  <span id="water-volume-text" class="text-sky-300 font-bold">0 / 2,250 ml (0%)</span>
+                  <span id="water-goal-hint" class="text-slate-400">Hit goal for +3 pts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. GAME PLAN — TO-DO LIST -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">📋</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                GAME PLAN — TO-DO LIST
+              </h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="todo-counter-badge" class="text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-slate-300">
+                0/0 Done
+              </span>
+              <button onclick="clearCompletedTodos()" id="clear-todos-btn" class="hidden text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-black/40 hover:bg-black/60 text-amber-300 border border-amber-400/40 transition cursor-pointer">
+                Clear Done
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <!-- Quick-Add Task Input -->
+            <form onsubmit="handleAddTodo(event)" class="flex gap-2">
+              <input id="todo-input" type="text" maxlength="120" placeholder="Add a personal task or reminder..."
+                class="flex-1 bg-[#070B14] border border-white/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition" />
+              <button type="submit"
+                class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-extrabold text-xs shadow transition cursor-pointer shrink-0">
+                + Add
+              </button>
+            </form>
+
+            <!-- Checklist Items -->
+            <div id="todo-list" class="space-y-2 max-h-60 overflow-y-auto pr-0.5">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. CONTRACT PERKS (IRL SHOP) -->
+        <div class="scouting-panel rounded-2xl overflow-hidden">
+          <div class="crimson-header px-4 py-3 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-base" aria-hidden="true">🎟️</span>
+              <h2 class="font-broadcast text-sm sm:text-base font-bold text-white">
+                CONTRACT PERKS (IRL SHOP)
+              </h2>
+            </div>
+            <span class="text-xs font-mono-stat font-extrabold text-amber-300 bg-black/35 border border-amber-400/30 px-2.5 py-0.5 rounded-lg">
+              <span id="shop-wallet-display">0</span> PTS
+            </span>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Redeem banked points on IRL rewards—<strong class="text-white">never</strong> lowers your NHL draft rating.
+            </p>
+
+            <div id="perks-list" class="space-y-2">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Add Custom Perk Mini-Form -->
+            <div class="pt-2.5 border-t border-white/10">
+              <details class="group">
+                <summary class="text-xs font-bold text-amber-400 hover:text-amber-300 cursor-pointer select-none flex items-center gap-1">
+                  <span>+ Add Custom IRL Perk</span>
+                </summary>
+                <div class="mt-2.5 flex gap-2">
+                  <input id="custom-perk-name" type="text" placeholder="e.g. Iced matcha / 1 episode"
+                    class="flex-1 bg-[#070B14] border border-white/25 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400" />
+                  <input id="custom-perk-cost" type="number" min="1" max="500" placeholder="Pts"
+                    class="w-16 bg-[#070B14] border border-white/25 rounded-xl px-2 py-2 text-xs text-center font-mono-stat text-white placeholder-slate-500 focus:outline-none focus:border-amber-400" />
+                  <button onclick="addCustomPerk()" class="px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl cursor-pointer transition">
+                    Add
+                  </button>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <!-- SYSTEM / RESET FOOTER -->
+        <div class="flex items-center justify-between text-xs text-slate-400 px-1.5 pb-2">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            Auto-saved locally
+          </span>
+          <button onclick="openResetModal()" class="text-rose-400 hover:text-rose-300 font-semibold underline underline-offset-2 cursor-pointer">
+            Reset Active Prospect
+          </button>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 1: MILESTONE / EXAM BONUS
+       ========================================================= -->
+  <div id="bonus-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="scouting-panel rounded-2xl max-w-md w-full overflow-hidden">
+      <div class="crimson-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-broadcast font-bold text-white text-base">⚡ SCOUTING COMBINE &amp; EXAM BONUSES</h3>
+        <button onclick="closeModal('bonus-modal')" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/45 text-white font-bold text-sm flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div class="p-5 space-y-3">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Hit a major IRL academic or consistency milestone? Award instant career XP to your prospect's scouting report and perk wallet:
+        </p>
+
+        <button onclick="applyMilestoneBonus(10, 'Ironman Streak / Project Submitted Early', 'grit')"
+          class="w-full text-left p-3.5 rounded-xl bg-[#070B14] hover:bg-[#141E36] border border-white/20 hover:border-amber-400/50 transition flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <div class="font-bold text-sm text-white">🛡️ Ironman Streak / Early Submission</div>
+            <div class="text-xs text-slate-400 mt-0.5">Boosts Grit &amp; Overall Draft Stock</div>
+          </div>
+          <span class="font-mono-stat font-extrabold text-amber-400 text-sm shrink-0">+10 pts</span>
+        </button>
+
+        <button onclick="applyMilestoneBonus(15, 'Hat Trick / Top Marks on Exam', 'vision')"
+          class="w-full text-left p-3.5 rounded-xl bg-[#070B14] hover:bg-[#141E36] border border-white/20 hover:border-amber-400/50 transition flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <div class="font-bold text-sm text-white">🎩 Hat Trick / Top Exam Marks</div>
+            <div class="text-xs text-slate-400 mt-0.5">Boosts IQ &amp; Overall Draft Stock</div>
+          </div>
+          <span class="font-mono-stat font-extrabold text-amber-400 text-sm shrink-0">+15 pts</span>
+        </button>
+
+        <button onclick="applyMilestoneBonus(25, 'World Juniors Roster / Major Grade Jump', 'all')"
+          class="w-full text-left p-3.5 rounded-xl bg-[#070B14] hover:bg-[#141E36] border border-amber-400/50 hover:border-amber-300 transition flex items-center justify-between gap-3 cursor-pointer">
+          <div>
+            <div class="font-bold text-sm text-amber-300">🌟 World Juniors Selection / Grade Jump</div>
+            <div class="text-xs text-slate-400 mt-0.5">Massive boost across all attributes</div>
+          </div>
+          <span class="font-mono-stat font-extrabold text-amber-400 text-sm shrink-0">+25 pts</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 2: FINISH DAY & BANK POINTS
+       ========================================================= -->
+  <div id="finish-day-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="scouting-panel rounded-2xl max-w-md w-full overflow-hidden">
+      <div class="crimson-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-broadcast font-bold text-white text-base">🔔 FINAL HORN — BANK TODAY'S SHIFT</h3>
+        <button onclick="closeModal('finish-day-modal')" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/45 text-white font-bold text-sm flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <div class="bg-[#070B14] border border-white/20 rounded-xl p-4 text-center space-y-1.5">
+          <span class="text-[11px] uppercase tracking-widest text-slate-400 font-bold block">Today's Total Shift Earned</span>
+          <span class="font-mono-stat text-4xl font-extrabold text-emerald-400 block">+<span id="modal-today-pts">0</span> pts</span>
+          <p class="text-xs text-slate-300 pt-1 leading-relaxed">
+            This will lock in your attribute gains, add <strong id="modal-wallet-add" class="text-amber-400">0</strong> pts to your IRL Perk Wallet, and reset daily checkboxes for tomorrow.
+          </p>
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="closeModal('finish-day-modal')" class="flex-1 py-2.5 rounded-xl border border-white/25 text-slate-200 hover:bg-white/10 font-bold text-xs sm:text-sm cursor-pointer transition">
+            Cancel
+          </button>
+          <button onclick="confirmFinishDay()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm cursor-pointer shadow transition">
+            Start New Day →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 3: RESET CAREER CONFIRMATION
+       ========================================================= -->
+  <div id="reset-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="scouting-panel rounded-2xl max-w-sm w-full overflow-hidden">
+      <div class="crimson-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-broadcast font-bold text-white text-base">⚠️ RESET ACTIVE PROSPECT?</h3>
+        <button onclick="closeModal('reset-modal')" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/45 text-white font-bold text-sm flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          This will reset <strong id="reset-prospect-name" class="text-white">this prospect's</strong> attributes back to <strong>25</strong>, set draft projection back to <strong>AHL</strong>, and clear banked career points for this file. Are you sure?
+        </p>
+        <div class="flex gap-3">
+          <button onclick="closeModal('reset-modal')" class="flex-1 py-2.5 rounded-xl border border-white/25 text-slate-200 hover:bg-white/10 text-xs font-bold cursor-pointer transition">
+            Keep File
+          </button>
+          <button onclick="confirmResetCareer()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold cursor-pointer shadow transition">
+            Yes, Reset File
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 4: CREATE NEW PROSPECT FILE
+       ========================================================= -->
+  <div id="new-prospect-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="scouting-panel rounded-2xl max-w-md w-full overflow-hidden">
+      <div class="crimson-header px-5 py-3.5 flex items-center justify-between">
+        <h3 class="font-broadcast font-bold text-white text-base">🏒 DRAFT NEW PROSPECT FILE</h3>
+        <button onclick="closeModal('new-prospect-modal')" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/45 text-white font-bold text-sm flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <form onsubmit="handleCreateProspect(event)" class="p-5 space-y-3.5">
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Start a fresh character for a new month! Your previous prospect stays saved on the Leaderboard with their final rating, points, and month played.
+        </p>
+
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-8">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Prospect Name</label>
+            <input id="new-prospect-name" type="text" required maxlength="36" placeholder="e.g. Liam Vance"
+              class="w-full bg-[#070B14] border border-white/25 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400" />
+          </div>
+          <div class="col-span-4">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Jersey #</label>
+            <input id="new-prospect-number" type="text" required maxlength="2" value="19"
+              class="w-full bg-[#070B14] border border-white/25 rounded-xl px-3 py-2 text-xs font-mono-stat font-bold text-center text-white focus:outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-3">
+          <div class="col-span-4">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Position</label>
+            <select id="new-prospect-position"
+              class="w-full bg-[#070B14] border border-white/25 rounded-xl px-2.5 py-2 text-xs font-semibold text-white focus:outline-none focus:border-amber-400 cursor-pointer">
+              <option value="F">F (Forward)</option>
+              <option value="C">C (Center)</option>
+              <option value="LW">LW (Left Wing)</option>
+              <option value="RW">RW (Right Wing)</option>
+              <option value="D">D (Defenseman)</option>
+              <option value="G">G (Goalie)</option>
+            </select>
+          </div>
+          <div class="col-span-8">
+            <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">College / Junior Club</label>
+            <input id="new-prospect-team" type="text" required maxlength="36" placeholder="e.g. Michigan Wolverines"
+              class="w-full bg-[#070B14] border border-white/25 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-1">Month Played</label>
+          <input id="new-prospect-month" type="text" required maxlength="16" placeholder="e.g. Dec 2026"
+            class="w-full bg-[#070B14] border border-white/25 rounded-xl px-3 py-2 text-xs font-mono-stat font-bold text-amber-300 focus:outline-none focus:border-amber-400" />
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeModal('new-prospect-modal')"
+            class="flex-1 py-2.5 rounded-xl border border-white/25 text-slate-200 hover:bg-white/10 font-bold text-xs cursor-pointer transition">
+            Cancel
+          </button>
+          <button type="submit"
+            class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow cursor-pointer transition">
+            Create &amp; Load File →
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 5: INSPECT PROSPECT SCOUTING FILE
+       ========================================================= -->
+  <div id="inspect-prospect-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="scouting-panel rounded-2xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="crimson-header px-5 py-3.5 flex items-center justify-between shrink-0">
+        <h3 class="font-broadcast font-bold text-white text-base">📁 CENTRAL SCOUTING DOSSIER</h3>
+        <button onclick="closeModal('inspect-prospect-modal')" class="w-7 h-7 rounded-lg bg-black/25 hover:bg-black/45 text-white font-bold text-sm flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div id="inspect-modal-body" class="p-5 space-y-4 overflow-y-auto">
+        <!-- Populated dynamically when inspecting a prospect -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. DEFAULT DATA & CONFIGURATION
+    // ==========================================
+    const ATTRIBUTE_CONFIG = [
+      { id: 'grit',      attr: 'Grit',        task: 'Tough shit',   points: 6 },
+      { id: 'iq',        attr: 'Focus',       task: 'Study sprint', points: 5 },
+      { id: 'strength',  attr: 'Strength',    task: 'Workout',      points: 4 },
+      { id: 'hands',     attr: 'Playmaking',  task: 'Creative shi', points: 4 },
+      { id: 'vision',    attr: 'IQ',          task: 'Read',         points: 3 },
+      { id: 'freshness', attr: 'Freshness',   task: 'Shower',       points: 2 },
+      { id: 'media',     attr: 'Media / PR',  task: 'Journal',      points: 2 }
+    ];
+
+    const DEFAULT_PERKS = [
+      { id: 'p1', name: 'Locker Room Playlist (20m guilt-free YouTube/reading)', cost: 10 },
+      { id: 'p2', name: 'Post-Game Treat (Special iced drink or pastry)', cost: 15 },
+      { id: 'p3', name: 'Press Conference Pass (Skip 1 minor chore / takeout)', cost: 25 },
+      { id: 'p4', name: 'Off-Day Privilege (Half-day completely guilt-free)', cost: 50 }
+    ];
+
+    const LEGACY_STORAGE_KEY = 'nhl_prospect_tracker_carlos_v2';
+    const STORAGE_KEY = 'nhl_prospect_roster_v3';
+
+    function getCurrentMonthLabel() {
+      return new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    function createBlankProspect(overrides = {}) {
+      return {
+        id: 'prospect_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        name: overrides.name || 'Carlos Perez',
+        number: overrides.number || '7',
+        position: overrides.position || 'F',
+        team: overrides.team || 'Boston University',
+        monthPlayed: overrides.monthPlayed || getCurrentMonthLabel(),
+        dayNumber: overrides.dayNumber || 1,
+        bankedPoints: overrides.bankedPoints || 0,
+        bankedAttrXP: {
+          grit: 0, iq: 0, strength: 0, hands: 0, vision: 0, freshness: 0, media: 0, discipline: 0,
+          ...(overrides.bankedAttrXP || {})
+        },
+        bankedBonusXP: overrides.bankedBonusXP || 0,
+        todayTasks: {
+          grit: false, iq: false, strength: false, hands: false, vision: false, freshness: false, media: false,
+          ...(overrides.todayTasks || {})
+        },
+        todayNamaz: Array.isArray(overrides.todayNamaz) ? [...overrides.todayNamaz] : [false, false, false, false, false],
+        namazStreak: overrides.namazStreak || 0,
+        waterFilledCount: overrides.waterFilledCount || 0
+      };
+    }
+
+    let state = {
+      activeProspectId: 'prospect_carlos_1',
+      prospects: [
+        createBlankProspect({
+          id: 'prospect_carlos_1',
+          name: 'Carlos Perez',
+          number: '7',
+          position: 'F',
+          team: 'Boston University',
+          monthPlayed: getCurrentMonthLabel()
+        })
+      ],
+      walletPoints: 0,
+      waterMlPerDroplet: 250,
+      waterTotalDroplets: 9,
+      todos: [],
+      perks: [...DEFAULT_PERKS]
+    };
+
+    function getActiveProspect() {
+      let found = state.prospects.find(p => p.id === state.activeProspectId);
+      if (!found && state.prospects.length > 0) {
+        found = state.prospects[0];
+        state.activeProspectId = found.id;
+      }
+      if (!found) {
+        found = createBlankProspect();
+        state.prospects.push(found);
+        state.activeProspectId = found.id;
+      }
+      return found;
+    }
+
+    // ==========================================
+    // 2. INITIALIZATION & STORAGE (WITH MIGRATION)
+    // ==========================================
+    function loadState() {
+      try {
+        const savedRoster = localStorage.getItem(STORAGE_KEY);
+        if (savedRoster) {
+          const parsed = JSON.parse(savedRoster);
+          if (parsed && Array.isArray(parsed.prospects) && parsed.prospects.length > 0) {
+            state = {
+              ...state,
+              ...parsed,
+              prospects: parsed.prospects.map(p => createBlankProspect(p)),
+              waterMlPerDroplet: Number(parsed.waterMlPerDroplet) || 250,
+              waterTotalDroplets: Number(parsed.waterTotalDroplets) || 9,
+              todos: Array.isArray(parsed.todos) ? parsed.todos : [],
+              perks: Array.isArray(parsed.perks) ? parsed.perks : [...DEFAULT_PERKS]
+            };
+            getActiveProspect();
+            return;
+          }
+        }
+
+        // Backward-compatible migration from single-prospect v2 storage
+        const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacyRaw) {
+          const legacy = JSON.parse(legacyRaw);
+          const xpSum = Object.values(legacy.bankedAttrXP || {}).reduce((acc, v) => acc + (Number(v) || 0), 0);
+          const migratedCarlos = createBlankProspect({
+            id: 'prospect_carlos_1',
+            name: legacy.profile?.name || 'Carlos Perez',
+            number: legacy.profile?.number || '7',
+            position: legacy.profile?.position || 'F',
+            team: legacy.profile?.team || 'Boston University',
+            monthPlayed: getCurrentMonthLabel(),
+            dayNumber: legacy.dayNumber || 1,
+            bankedPoints: xpSum,
+            bankedAttrXP: legacy.bankedAttrXP || {},
+            bankedBonusXP: legacy.bankedBonusXP || 0,
+            todayTasks: legacy.todayTasks || {},
+            todayNamaz: legacy.todayNamaz || [false, false, false, false, false],
+            namazStreak: legacy.namazStreak || 0,
+            waterFilledCount: Number(legacy.waterFilledCount) || 0
+          });
+
+          state = {
+            activeProspectId: migratedCarlos.id,
+            prospects: [migratedCarlos],
+            walletPoints: Number(legacy.walletPoints) || 0,
+            waterMlPerDroplet: Number(legacy.waterMlPerDroplet) || 250,
+            waterTotalDroplets: Number(legacy.waterTotalDroplets) || 9,
+            todos: Array.isArray(legacy.todos) ? legacy.todos : [],
+            perks: Array.isArray(legacy.perks) ? legacy.perks : [...DEFAULT_PERKS]
+          };
+          saveState();
+        }
+      } catch (e) {
+        console.error('Failed to load saved tracker data:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save tracker data:', e);
+      }
+    }
+
+    // ==========================================
+    // 3. SCORING & DRAFT PROJECTION MATH
+    // ==========================================
+    function isNamazEarnedForProspect(prospect) {
+      return (prospect.todayNamaz || []).filter(Boolean).length === 5;
+    }
+
+    function isNamazEarnedToday() {
+      return isNamazEarnedForProspect(getActiveProspect());
+    }
+
+    function calculateTodayPointsForProspect(prospect) {
+      let pts = 0;
+      ATTRIBUTE_CONFIG.forEach(item => {
+        if (prospect.todayTasks && prospect.todayTasks[item.id]) {
+          pts += item.points;
+        }
+      });
+      if (isNamazEarnedForProspect(prospect)) {
+        pts += 7;
+      }
+      if ((prospect.waterFilledCount || 0) >= state.waterTotalDroplets && state.waterTotalDroplets > 0) {
+        pts += 3;
+      }
+      return pts;
+    }
+
+    function calculateTodayPoints() {
+      return calculateTodayPointsForProspect(getActiveProspect());
+    }
+
+    function getAttributeRatingForProspect(prospect, attrId) {
+      let liveXP = 0;
+      if (attrId === 'discipline') {
+        if (isNamazEarnedForProspect(prospect)) liveXP += 7;
+      } else {
+        const cfg = ATTRIBUTE_CONFIG.find(a => a.id === attrId);
+        if (cfg && prospect.todayTasks && prospect.todayTasks[attrId]) {
+          liveXP += cfg.points;
+        }
+        if (attrId === 'freshness' && (prospect.waterFilledCount || 0) >= state.waterTotalDroplets && state.waterTotalDroplets > 0) {
+          liveXP += 3;
+        }
+      }
+      const totalXP = ((prospect.bankedAttrXP && prospect.bankedAttrXP[attrId]) || 0) + liveXP;
+      // Month-long progression: ~0.40 rating per XP so 30 days of consistency builds from 25 toward 85-99
+      return Math.min(99, Math.round(25 + totalXP * 0.40));
+    }
+
+    function getAttributeRating(attrId) {
+      return getAttributeRatingForProspect(getActiveProspect(), attrId);
+    }
+
+    function getOverallRatingForProspect(prospect) {
+      // Exact Excel formula: =ROUND(AVERAGE(F11:F18)) across all 8 player attributes
+      const attrIds = [...ATTRIBUTE_CONFIG.map(a => a.id), 'discipline'];
+      const sum = attrIds.reduce((total, id) => total + getAttributeRatingForProspect(prospect, id), 0);
+      const avg = Math.round(sum / attrIds.length);
+      return Math.min(99, Math.max(25, avg));
+    }
+
+    function getOverallRating() {
+      return getOverallRatingForProspect(getActiveProspect());
+    }
+
+    function getTotalPointsForProspect(prospect) {
+      const banked = Number(prospect.bankedPoints) || 0;
+      const live = calculateTodayPointsForProspect(prospect);
+      return banked + live;
+    }
+
+    function getDraftProjection(overall) {
+      if (overall >= 50) return '🎯 Top 10 Draft Pick';
+      if (overall >= 42) return '🏆 1st Round Pick';
+      if (overall >= 35) return '🏒 2nd Round Pick';
+      return '📉 AHL';
+    }
+
+    function getShortDraftBadge(overall) {
+      if (overall >= 50) return { label: '🎯 Top 10', cls: 'bg-amber-400 text-slate-950 border-amber-200' };
+      if (overall >= 42) return { label: '🏆 1st Rd', cls: 'bg-emerald-500 text-slate-950 border-emerald-200' };
+      if (overall >= 35) return { label: '🏒 2nd Rd', cls: 'bg-sky-400 text-slate-950 border-sky-200' };
+      return { label: '📉 AHL', cls: 'bg-slate-800 text-slate-300 border-white/20' };
+    }
+
+    // Position-specific scouting evaluation generator for Forward, Defense, and Goalie
+    function buildPositionScoutingReport(prospect) {
+      const name = prospect.name || 'Carlos Perez';
+      const lastName = name.trim().split(/\s+/).pop();
+      const num = prospect.number || '7';
+      const pos = prospect.position || 'F';
+      const team = prospect.team || 'Boston University';
+      const todayPts = calculateTodayPointsForProspect(prospect);
+      const overall = getOverallRatingForProspect(prospect);
+      const namazDone = isNamazEarnedForProspect(prospect);
+      const waterDone = (prospect.waterFilledCount || 0) >= state.waterTotalDroplets && state.waterTotalDroplets > 0;
+
+      const allAttrs = [
+        ...ATTRIBUTE_CONFIG.map(a => ({ name: a.attr, rating: getAttributeRatingForProspect(prospect, a.id) })),
+        { name: 'Discipline', rating: getAttributeRatingForProspect(prospect, 'discipline') }
+      ];
+      allAttrs.sort((a, b) => b.rating - a.rating);
+      const topAttr = allAttrs[0];
+
+      const role = pos === 'G' ? 'G' : pos === 'D' ? 'D' : 'F';
+
+      const roleTag =
+        role === 'G' ? 'Starting Crease • Goalie File' :
+        role === 'D' ? 'Top-4 Pairing • Blue-Line File' :
+        'Top-6 Forward • Offensive File';
+
+      let lineBadgeText = 'Pre-Game • Under Review';
+      let lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-black/40 border border-amber-400/50 text-amber-300 shrink-0';
+      let scoutTagText = 'In Attendance: 2 NHL Scouts';
+      let gradeTagText = `Report Grade: INC (${overall} OVR)`;
+      let narrativeText = '';
+
+      if (role === 'G') {
+        if (todayPts >= 28) {
+          lineBadgeText = 'Starter • Shutout Pace ↑↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 shadow shrink-0';
+          scoutTagText = 'In Attendance: 9 NHL Goalie Scouts';
+          gradeTagText = `Report Grade: A+ (${overall} OVR)`;
+          narrativeText = `${lastName} (#${num}) was an absolute wall in the crease for ${team}. Explosive post-to-post lateral pushes, locked-in crease depth, and elite rebound control erased second-chance looks. Backed by ${topAttr.name.toLowerCase()} (${topAttr.rating}), he tracked pucks cleanly through heavy net-front traffic, stayed calm during high-danger flurry sequences, and moved pucks crisply behind the net to kickstart breakouts.`;
+        } else if (todayPts >= 18) {
+          lineBadgeText = '1A Crease • Stock Rising ↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 5 NHL Goalie Scouts';
+          gradeTagText = `Report Grade: B+ (${overall} OVR)`;
+          narrativeText = `Composed, square-to-the-shooter performance from ${lastName} in net for ${team}. Managed his top-of-the-crease angles well on rush chances and showed strong ${topAttr.name.toLowerCase()} (${topAttr.rating}) under sustained zone pressure. Absorbed low shots cleanly into the chest and steered corner rebounds out of danger.`;
+        } else if (todayPts >= 8) {
+          lineBadgeText = 'Tandem • Steady Reps';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 3 NHL Goalie Scouts';
+          gradeTagText = `Report Grade: C+ (${overall} OVR)`;
+          narrativeText = `${lastName} battled through traffic and relied on solid ${topAttr.name.toLowerCase()} (${topAttr.rating}) to make the expected saves for ${team}. Goalie coaches want to see quieter upper-body mechanics, tighter post seals on wraparounds, and sharper rim stops behind the cage before elevating his draft tier.`;
+        } else {
+          lineBadgeText = 'Warmups • Crease Eval';
+          scoutTagText = 'In Attendance: 2 NHL Goalie Scouts';
+          narrativeText = `Early crease viewing on ${lastName} (#${num}, ${team}). Evaluators are keying in on his post-to-post edge recovery, angle discipline on east-west passes, and rebound deadening tonight—needs a string of clean saves on tape to build pro starter momentum.`;
+        }
+      } else if (role === 'D') {
+        if (todayPts >= 28) {
+          lineBadgeText = '1st Pair • Shutdown ↑↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 shadow shrink-0';
+          scoutTagText = 'In Attendance: 9 NHL Scouts';
+          gradeTagText = `Report Grade: A+ (${overall} OVR)`;
+          narrativeText = `${lastName} (#${num}) logged heavy all-situations minutes on the ${team} blue line. Suffocating neutral-zone gap control, effortless blue-line mobility, and tape-to-tape first-pass breakouts tilted the ice all night. Powered by ${topAttr.name.toLowerCase()} (${topAttr.rating}), he cleared the net-front crease with physical box-outs and blocked key shooting lanes on PK1.`;
+        } else if (todayPts >= 18) {
+          lineBadgeText = 'Top-4 D • Stock Rising ↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 5 NHL Scouts';
+          gradeTagText = `Report Grade: B+ (${overall} OVR)`;
+          narrativeText = `Poised two-way blue-line showing from ${lastName}. Showcased quick shoulder-check puck retrievals under forecheck pressure and leaned on ${topAttr.name.toLowerCase()} (${topAttr.rating}) to exit the defensive zone cleanly. Held tight gaps at his own blue line and walked the offensive point with head-up vision.`;
+        } else if (todayPts >= 8) {
+          lineBadgeText = '2nd Pair • Reliable';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 3 NHL Scouts';
+          gradeTagText = `Report Grade: C+ (${overall} OVR)`;
+          narrativeText = `${lastName} kept plays simple and low-risk on the ${team} back end, leaning on ${topAttr.name.toLowerCase()} (${topAttr.rating}) during defensive-zone cycles. Scouts want to see firmer net-front box-outs, faster transition retrievals, and more assertive activation from the offensive blue line.`;
+        } else {
+          lineBadgeText = 'Pre-Game • Blue-Line Eval';
+          scoutTagText = 'In Attendance: 2 NHL Scouts';
+          narrativeText = `Early defensive viewing on ${lastName} (#${num}, ${team}). Scouts are tracking his gap control against speed, first-pass breakout accuracy under forecheck pressure, and penalty-kill stick positioning tonight before moving him up draft boards.`;
+        }
+      } else {
+        if (todayPts >= 28) {
+          lineBadgeText = '1st Line • Draft Stock ↑↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 shadow shrink-0';
+          scoutTagText = 'In Attendance: 9 NHL Scouts';
+          gradeTagText = `Report Grade: A+ (${overall} OVR)`;
+          narrativeText = `${lastName} (#${num}) dictated pace every shift tonight for ${team}. Relentless F1 forechecking motor, high-speed rush transition pace, and deceptive offensive-zone playmaking generated constant slot chances. Backed by ${topAttr.name.toLowerCase()} (${topAttr.rating}), he won 50/50 wall battles and tracked back hard on two-way backchecks.`;
+        } else if (todayPts >= 18) {
+          lineBadgeText = 'Top-6 F • Stock Rising ↑';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 5 NHL Scouts';
+          gradeTagText = `Report Grade: B+ (${overall} OVR)`;
+          narrativeText = `Dynamic two-way forward showing from ${lastName}. Anticipated off-puck passing lanes cleanly, attacked inside ice for high-danger slot looks, and leveraged ${topAttr.name.toLowerCase()} (${topAttr.rating}) through all three zones. Earned late-period trust from the ${team} staff with responsible backchecking.`;
+        } else if (todayPts >= 8) {
+          lineBadgeText = 'Middle-6 F • Steady';
+          lineBadgeClass = 'text-[10px] font-mono-stat font-bold uppercase px-2.5 py-1 rounded-lg bg-sky-400 text-slate-950 shrink-0';
+          scoutTagText = 'In Attendance: 3 NHL Scouts';
+          gradeTagText = `Report Grade: C+ (${overall} OVR)`;
+          narrativeText = `${lastName} logged disciplined middle-six forward shifts for ${team}, flashing solid ${topAttr.name.toLowerCase()} (${topAttr.rating}) in tight wall battles. Evaluators want to see heavier forechecking pressure, quicker rush transition pace, and more playmaking creation inside the dots.`;
+        } else {
+          lineBadgeText = 'Pre-Game • Forward Eval';
+          scoutTagText = 'In Attendance: 2 NHL Scouts';
+          narrativeText = `Early viewing on ${lastName} (#${num}, ${team}). Evaluators are tracking his forechecking motor, off-puck lane anticipation, and two-way backcheck detail tonight—needs a few high-tempo shifts on tape to generate pro forward momentum.`;
+        }
+      }
+
+      const nextTask = ATTRIBUTE_CONFIG.find(a => !(prospect.todayTasks && prospect.todayTasks[a.id]));
+      let nextFocusText = '';
+      if (nextTask) {
+        const roleAction =
+          role === 'G' ? 'sharpen crease composure & rebound control' :
+          role === 'D' ? 'elevate breakout poise & blue-line shutdown projection' :
+          'boost forecheck pace & top-six playmaking projection';
+        nextFocusText = `Log "${nextTask.task}" (+${nextTask.points} ${nextTask.attr}) to ${roleAction}.`;
+      } else if (!namazDone) {
+        nextFocusText = `Complete 5/5 prayers (+7 Discipline) to grade out as a low-maintenance pro.`;
+      } else if (!waterDone) {
+        nextFocusText = `Hit hydration target (+3 Freshness) to prove 3rd-period stamina.`;
+      } else {
+        nextFocusText = `Complete ${role === 'G' ? 'goalie' : role === 'D' ? 'blue-line' : 'forward'} box score—ready to bank shift.`;
+      }
+
+      return {
+        role,
+        roleTag,
+        headlineText: `${team} (#${num} • ${pos}) — Scouting Evaluation`,
+        lineBadgeText,
+        lineBadgeClass,
+        scoutTagText,
+        gradeTagText,
+        narrativeText,
+        nextFocusText
+      };
+    }
+
+    // ==========================================
+    // 4. UI RENDERING
+    // ==========================================
+    function renderAll() {
+      const active = getActiveProspect();
+
+      const switcher = document.getElementById('prospect-switcher');
+      if (switcher) {
+        switcher.innerHTML = '';
+        state.prospects.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = `#${p.number} ${p.name} (${p.monthPlayed})`;
+          if (p.id === active.id) opt.selected = true;
+          switcher.appendChild(opt);
+        });
+      }
+
+      document.getElementById('prospect-name').value = active.name;
+      document.getElementById('prospect-number').value = active.number;
+      document.getElementById('prospect-position').value = active.position;
+      document.getElementById('prospect-team').value = active.team;
+      document.getElementById('prospect-month').value = active.monthPlayed || getCurrentMonthLabel();
+
+      const now = new Date();
+      document.getElementById('current-date-label').textContent = now.toLocaleDateString('en-US', {
+        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+      });
+
+      const overall = getOverallRating();
+      const todayPts = calculateTodayPoints();
+      document.getElementById('overall-rating').textContent = overall;
+      document.getElementById('overall-bar').style.width = `${overall}%`;
+      document.getElementById('draft-projection').textContent = getDraftProjection(overall);
+      document.getElementById('today-points').textContent = todayPts;
+      document.getElementById('wallet-points').textContent = state.walletPoints;
+      document.getElementById('shop-wallet-display').textContent = state.walletPoints;
+
+      renderAttributes();
+      renderTodos();
+      renderNamaz();
+      renderWater();
+      renderPerks();
+      renderScoutingDispatch();
+      renderLeaderboard();
+    }
+
+    function renderAttributes() {
+      const active = getActiveProspect();
+      const container = document.getElementById('attributes-list');
+      container.innerHTML = '';
+
+      ATTRIBUTE_CONFIG.forEach(item => {
+        const checked = !!(active.todayTasks && active.todayTasks[item.id]);
+        const rating = getAttributeRating(item.id);
+        const barColor =
+          rating >= 80 ? 'bg-gradient-to-r from-amber-500 to-yellow-300' :
+          rating >= 60 ? 'bg-gradient-to-r from-emerald-500 to-teal-300' :
+          'bg-gradient-to-r from-slate-400 to-slate-200';
+
+        const row = document.createElement('div');
+        row.className = `grid grid-cols-12 gap-2 items-center px-4 py-3 transition-colors ${
+          checked ? 'bg-amber-500/[0.08]' : 'hover:bg-white/[0.03]'
+        }`;
+
+        row.innerHTML = `
+          <!-- Checkbox + Task Label (Larger Tap Target) -->
+          <div class="col-span-5 sm:col-span-5 flex items-center gap-2.5 min-w-0">
+            <input type="checkbox" id="task-${item.id}" ${checked ? 'checked' : ''}
+              onchange="toggleTask('${item.id}')" class="hockey-checkbox" />
+            <label for="task-${item.id}" class="cursor-pointer select-none truncate py-0.5">
+              <span class="font-bold text-xs sm:text-sm ${checked ? 'line-through text-amber-300' : 'text-white'}">${item.task}</span>
+            </label>
+          </div>
+
+          <!-- Attribute Name & Point Pill -->
+          <div class="col-span-4 sm:col-span-3 flex flex-col sm:flex-row sm:items-center gap-1 min-w-0">
+            <span class="font-semibold text-xs text-slate-300 truncate">${item.attr}</span>
+            <span class="inline-flex items-center w-fit text-[10px] font-mono-stat font-extrabold px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 border border-amber-400/25 leading-none">
+              +${item.points}
+            </span>
+          </div>
+
+          <!-- Rating Number & Sleek Pill Progress Bar -->
+          <div class="col-span-3 sm:col-span-4 flex items-center justify-end gap-2.5">
+            <span class="font-mono-stat font-extrabold text-xs sm:text-sm text-white w-6 text-right">${rating}</span>
+            <div class="w-14 sm:w-24 h-2.5 bg-[#070B14] border border-white/20 rounded-full p-0.5 overflow-hidden shrink-0">
+              <div class="h-full rounded-full ${barColor} stat-bar-fill" style="width: ${rating}%"></div>
+            </div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderTodos() {
+      const list = document.getElementById('todo-list');
+      const badge = document.getElementById('todo-counter-badge');
+      const clearBtn = document.getElementById('clear-todos-btn');
+      if (!list) return;
+
+      const total = state.todos.length;
+      const doneCount = state.todos.filter(t => t.done).length;
+
+      badge.textContent = `${doneCount}/${total} Done`;
+      if (total > 0 && doneCount === total) {
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-emerald-300 bg-emerald-500 text-slate-950';
+      } else {
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-slate-300';
+      }
+
+      if (doneCount > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      list.innerHTML = '';
+
+      if (total === 0) {
+        list.innerHTML = `
+          <div class="text-center py-4 px-3 bg-[#070B14]/70 border border-dashed border-white/15 rounded-xl text-xs text-slate-400">
+            No extra tasks queued yet. Add errands, study reminders, or daily goals above.
+          </div>
+        `;
+        return;
+      }
+
+      state.todos.forEach(todo => {
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between gap-2.5 px-3 py-2 rounded-xl border transition ${
+          todo.done
+            ? 'bg-[#070B14]/50 border-white/10'
+            : 'bg-[#070B14]/90 border-white/20 hover:border-amber-400/50'
+        }`;
+
+        const labelWrap = document.createElement('label');
+        labelWrap.className = 'flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer select-none';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!todo.done;
+        cb.className = 'hockey-checkbox !w-4 !h-4';
+        cb.onchange = () => toggleTodo(todo.id);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = `text-xs sm:text-[13px] truncate ${todo.done ? 'line-through text-slate-500' : 'text-slate-100 font-medium'}`;
+        textSpan.textContent = todo.text;
+
+        labelWrap.appendChild(cb);
+        labelWrap.appendChild(textSpan);
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'w-6 h-6 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 text-sm font-bold flex items-center justify-center transition cursor-pointer shrink-0';
+        delBtn.title = 'Remove task';
+        delBtn.textContent = '×';
+        delBtn.onclick = () => deleteTodo(todo.id);
+
+        row.appendChild(labelWrap);
+        row.appendChild(delBtn);
+        list.appendChild(row);
+      });
+    }
+
+    function renderNamaz() {
+      const active = getActiveProspect();
+      let count = 0;
+      for (let i = 0; i < 5; i++) {
+        const cb = document.getElementById(`namaz-${i}`);
+        const isChecked = !!(active.todayNamaz && active.todayNamaz[i]);
+        if (cb) cb.checked = isChecked;
+        if (isChecked) count++;
+      }
+
+      const discRating = getAttributeRating('discipline');
+      document.getElementById('discipline-rating').textContent = discRating;
+      document.getElementById('discipline-bar').style.width = `${discRating}%`;
+
+      const badge = document.getElementById('namaz-bonus-badge');
+      const statusText = document.getElementById('namaz-status-text');
+      document.getElementById('namaz-streak').textContent = `${active.namazStreak || 0}d`;
+
+      if (count === 5) {
+        badge.textContent = '5 / 5 (+7 ACTIVE!)';
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-emerald-300 bg-emerald-500 text-slate-950 shadow';
+        statusText.textContent = 'Clean Sheet! +7 Discipline active';
+        statusText.className = 'text-emerald-400 font-bold';
+      } else {
+        badge.textContent = `${count} / 5 (+7 Locked)`;
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-slate-300';
+        statusText.textContent = `${5 - count} left for +7 Discipline pts`;
+        statusText.className = 'text-slate-400';
+      }
+    }
+
+    function renderWater() {
+      const active = getActiveProspect();
+      const filledCount = active.waterFilledCount || 0;
+
+      const mlInput = document.getElementById('water-ml-input');
+      const countInput = document.getElementById('water-count-input');
+      if (mlInput) mlInput.value = state.waterMlPerDroplet;
+      if (countInput) countInput.value = state.waterTotalDroplets;
+
+      const totalGoalMl = state.waterMlPerDroplet * state.waterTotalDroplets;
+      const currentMl = filledCount * state.waterMlPerDroplet;
+      const pct = totalGoalMl > 0 ? Math.min(100, Math.round((currentMl / totalGoalMl) * 100)) : 0;
+      const isComplete = filledCount >= state.waterTotalDroplets && state.waterTotalDroplets > 0;
+
+      const badge = document.getElementById('water-bonus-badge');
+      if (isComplete) {
+        badge.textContent = `${currentMl.toLocaleString()} ml (+3!)`;
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-sky-300 bg-sky-400 text-slate-950 shadow';
+      } else {
+        badge.textContent = `${currentMl.toLocaleString()} / ${totalGoalMl.toLocaleString()} ml (+3)`;
+        badge.className = 'text-[11px] font-mono-stat font-bold px-2.5 py-0.5 rounded-lg border border-white/20 bg-[#070B14] text-sky-300';
+      }
+
+      const grid = document.getElementById('water-droplets-grid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= state.waterTotalDroplets; i++) {
+        const filled = i <= filledCount;
+        const stepMl = i * state.waterMlPerDroplet;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.onclick = () => toggleWaterDroplet(i);
+        btn.title = filled
+          ? `Filled (${stepMl} ml) — Click to adjust`
+          : `Fill to ${stepMl} ml`;
+        btn.className = `water-droplet-btn flex flex-col items-center gap-1 p-1.5 rounded-xl cursor-pointer focus:outline-none ${
+          filled ? 'droplet-filled bg-sky-500/15 border border-sky-400/30' : 'opacity-65 hover:opacity-100 border border-transparent'
+        }`;
+
+        btn.innerHTML = `
+          <svg viewBox="0 0 24 28" class="w-6 h-7 sm:w-7 sm:h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12 2.2C12 2.2 3.5 11.4 3.5 17.6C3.5 22.3 7.3 26 12 26C16.7 26 20.5 22.3 20.5 17.6C20.5 11.4 12 2.2 12 2.2Z"
+              fill="${filled ? '#38bdf8' : '#0F172A'}"
+              stroke="${filled ? '#bae6fd' : '#64748b'}"
+              stroke-width="2"
+              stroke-linejoin="round"
+            />
+            ${filled ? '<path d="M8.5 15.5C8.2 17.8 9.2 20.2 11.2 21.2" stroke="#e0f2fe" stroke-width="1.8" stroke-linecap="round"/>' : ''}
+          </svg>
+          <span class="text-[9px] font-mono-stat font-bold leading-none ${filled ? 'text-sky-300' : 'text-slate-500'}">
+            ${stepMl >= 1000 ? (stepMl / 1000).toFixed(1) + 'L' : stepMl}
+          </span>
+        `;
+        grid.appendChild(btn);
+      }
+
+      document.getElementById('water-progress-bar').style.width = `${pct}%`;
+      document.getElementById('water-volume-text').textContent = `${currentMl.toLocaleString()} / ${totalGoalMl.toLocaleString()} ml (${pct}%)`;
+
+      const hint = document.getElementById('water-goal-hint');
+      if (isComplete) {
+        hint.textContent = 'Hydrated! +3 Freshness';
+        hint.className = 'text-sky-300 font-bold';
+      } else {
+        const remainingDrops = state.waterTotalDroplets - filledCount;
+        hint.textContent = `${remainingDrops} drop${remainingDrops === 1 ? '' : 's'} left`;
+        hint.className = 'text-slate-400';
+      }
+    }
+
+    function renderPerks() {
+      const list = document.getElementById('perks-list');
+      list.innerHTML = '';
+
+      state.perks.forEach(perk => {
+        const canAfford = state.walletPoints >= perk.cost;
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between gap-3 bg-[#070B14]/85 border border-white/15 hover:border-white/25 rounded-xl px-3.5 py-2.5 transition';
+
+        item.innerHTML = `
+          <div class="text-xs font-medium text-slate-200 leading-snug">${perk.name}</div>
+          <button onclick="redeemPerk('${perk.id}')" ${canAfford ? '' : 'disabled'}
+            class="shrink-0 px-3 py-1.5 rounded-lg font-mono-stat text-xs font-extrabold transition cursor-pointer ${
+              canAfford
+                ? 'bg-amber-500 hover:bg-amber-400 active:scale-[0.97] text-slate-950 shadow'
+                : 'bg-slate-800/80 text-slate-500 border border-slate-700/80 cursor-not-allowed'
+            }">
+            ${perk.cost} pts
+          </button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderScoutingDispatch() {
+      const active = getActiveProspect();
+      const report = buildPositionScoutingReport(active);
+
+      const lineBadge = document.getElementById('player-line-status');
+      const headline = document.getElementById('dispatch-headline');
+      const scoutTag = document.getElementById('dispatch-scout-tag');
+      const gradeTag = document.getElementById('dispatch-grade-tag');
+      const narrative = document.getElementById('dispatch-narrative');
+      const nextFocus = document.getElementById('dispatch-next-focus');
+
+      headline.textContent = report.headlineText;
+      lineBadge.textContent = report.lineBadgeText;
+      lineBadge.className = report.lineBadgeClass;
+      scoutTag.textContent = report.scoutTagText;
+      gradeTag.textContent = report.gradeTagText;
+      narrative.textContent = report.narrativeText;
+      nextFocus.textContent = report.nextFocusText;
+    }
+
+    function renderLeaderboard() {
+      const list = document.getElementById('leaderboard-list');
+      const countBadge = document.getElementById('roster-count-badge');
+      if (!list) return;
+
+      const count = state.prospects.length;
+      if (countBadge) {
+        countBadge.textContent = `${count} Prospect${count === 1 ? '' : 's'}`;
+      }
+
+      const ranked = [...state.prospects]
+        .map(p => ({
+          prospect: p,
+          ovr: getOverallRatingForProspect(p),
+          totalPts: getTotalPointsForProspect(p)
+        }))
+        .sort((a, b) => {
+          if (b.ovr !== a.ovr) return b.ovr - a.ovr;
+          return b.totalPts - a.totalPts;
+        });
+
+      list.innerHTML = '';
+
+      ranked.forEach((entry, idx) => {
+        const p = entry.prospect;
+        const isActive = p.id === state.activeProspectId;
+        const rank = idx + 1;
+        const badge = getShortDraftBadge(entry.ovr);
+
+        let rankStyle = 'bg-[#0F172A] text-slate-300 border-white/20';
+        if (rank === 1) rankStyle = 'bg-amber-400 text-slate-950 border-amber-200 font-black';
+        else if (rank === 2) rankStyle = 'bg-slate-300 text-slate-950 border-white font-extrabold';
+        else if (rank === 3) rankStyle = 'bg-amber-700 text-white border-amber-500 font-extrabold';
+
+        const card = document.createElement('div');
+        card.className = `rounded-xl border p-3 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+          isActive
+            ? 'bg-[#141E36] border-amber-400/80 shadow-md ring-1 ring-amber-400/20'
+            : 'bg-[#070B14]/85 border-white/15 hover:border-white/35'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0">
+            <!-- Rank Pill -->
+            <div class="w-7 h-7 rounded-lg border flex items-center justify-center font-mono-stat text-xs shrink-0 ${rankStyle}">
+              #${rank}
+            </div>
+
+            <!-- Jersey Mini Badge -->
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-b from-[#C8102E] to-[#880B20] border border-white/30 flex items-center justify-center font-mono-stat font-extrabold text-xs text-white shrink-0">
+              #${p.number}
+            </div>
+
+            <!-- Name, Team & Month Played -->
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-xs sm:text-sm text-white truncate">${p.name}</span>
+                <span class="text-[10px] font-mono-stat font-bold px-1.5 py-0.5 rounded bg-white/10 text-slate-200 leading-none">${p.position}</span>
+                ${isActive ? '<span class="text-[9px] font-mono-stat font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500 text-slate-950 leading-none">Active</span>' : ''}
+              </div>
+              <div class="flex items-center gap-1.5 text-[11px] text-slate-400 truncate mt-1">
+                <span class="truncate">${p.team}</span>
+                <span>•</span>
+                <span class="font-mono-stat text-amber-300 font-semibold shrink-0">📅 ${p.monthPlayed || 'Nov 2026'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats & File Controls -->
+          <div class="flex items-center justify-between sm:justify-end gap-2.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10 shrink-0">
+            <div class="flex items-center gap-2.5">
+              <div class="text-left sm:text-right">
+                <div class="font-mono-stat font-extrabold text-xs text-amber-400 leading-none">${entry.ovr} OVR</div>
+                <div class="font-mono-stat text-[10px] text-slate-400 mt-1">${entry.totalPts} pts</div>
+              </div>
+              <span class="text-[10px] font-mono-stat font-bold px-2 py-1 rounded-lg border ${badge.cls}">
+                ${badge.label}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="openInspectModal('${p.id}')"
+                class="px-2.5 py-1.5 rounded-lg bg-[#0F172A] hover:bg-[#1E293B] border border-white/25 text-white font-bold text-[11px] transition cursor-pointer">
+                📁 File
+              </button>
+              ${isActive ? '' : `
+                <button type="button" onclick="switchProspect('${p.id}')"
+                  class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[11px] transition cursor-pointer">
+                  Load
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // 5. USER ACTIONS & EVENT HANDLERS
+    // ==========================================
+    function saveProfile() {
+      const active = getActiveProspect();
+      active.name = document.getElementById('prospect-name').value.trim() || 'Carlos Perez';
+      active.number = document.getElementById('prospect-number').value.trim() || '7';
+      active.position = document.getElementById('prospect-position').value;
+      active.team = document.getElementById('prospect-team').value.trim() || 'Boston University';
+      active.monthPlayed = document.getElementById('prospect-month').value.trim() || getCurrentMonthLabel();
+      saveState();
+      renderAll();
+      showToast(`Scouting dossier updated for #${active.number} ${active.name}`);
+    }
+
+    function switchProspect(prospectId) {
+      const target = state.prospects.find(p => p.id === prospectId);
+      if (!target) return;
+      state.activeProspectId = target.id;
+      saveState();
+      renderAll();
+      showToast(`Loaded Prospect File: #${target.number} ${target.name} (${target.monthPlayed})`);
+    }
+
+    function openNewProspectModal() {
+      document.getElementById('new-prospect-name').value = '';
+      document.getElementById('new-prospect-number').value = Math.floor(Math.random() * 88 + 10);
+      document.getElementById('new-prospect-position').value = 'F';
+      document.getElementById('new-prospect-team').value = '';
+      document.getElementById('new-prospect-month').value = getCurrentMonthLabel();
+      document.getElementById('new-prospect-modal').classList.remove('hidden');
+      document.getElementById('new-prospect-modal').classList.add('flex');
+    }
+
+    function handleCreateProspect(event) {
+      event.preventDefault();
+      const name = document.getElementById('new-prospect-name').value.trim();
+      const number = document.getElementById('new-prospect-number').value.trim() || '19';
+      const position = document.getElementById('new-prospect-position').value;
+      const team = document.getElementById('new-prospect-team').value.trim() || 'Boston College';
+      const monthPlayed = document.getElementById('new-prospect-month').value.trim() || getCurrentMonthLabel();
+
+      if (!name) return;
+
+      const created = createBlankProspect({
+        name,
+        number,
+        position,
+        team,
+        monthPlayed
+      });
+
+      state.prospects.push(created);
+      state.activeProspectId = created.id;
+      saveState();
+      renderAll();
+      closeModal('new-prospect-modal');
+      showToast(`🏒 Drafted #${created.number} ${created.name} (${created.monthPlayed}) at 25 OVR!`);
+    }
+
+    function openInspectModal(prospectId) {
+      const p = state.prospects.find(item => item.id === prospectId);
+      if (!p) return;
+
+      const ovr = getOverallRatingForProspect(p);
+      const totalPts = getTotalPointsForProspect(p);
+      const proj = getDraftProjection(ovr);
+      const report = buildPositionScoutingReport(p);
+      const canDelete = state.prospects.length > 1;
+
+      const attrRowsHtml = [
+        ...ATTRIBUTE_CONFIG.map(a => ({ label: a.attr, val: getAttributeRatingForProspect(p, a.id) })),
+        { label: 'Discipline', val: getAttributeRatingForProspect(p, 'discipline') }
+      ].map(stat => `
+        <div class="bg-[#070B14] border border-white/15 rounded-xl px-3 py-2 flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-300">${stat.label}</span>
+          <span class="font-mono-stat font-extrabold text-xs ${stat.val >= 60 ? 'text-amber-400' : 'text-white'}">${stat.val}</span>
+        </div>
+      `).join('');
+
+      const body = document.getElementById('inspect-modal-body');
+      body.innerHTML = `
+        <div class="flex items-center gap-3 bg-[#070B14] border border-white/20 rounded-xl p-3.5">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-b from-[#C8102E] to-[#880B20] border border-white/30 flex flex-col items-center justify-center shrink-0">
+            <span class="text-[8px] text-rose-200 uppercase">NO.</span>
+            <span class="font-mono-stat font-extrabold text-lg text-white leading-none">${p.number}</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-broadcast font-bold text-base text-white truncate">${p.name}</div>
+            <div class="text-xs text-slate-300 truncate">${p.position} • ${p.team}</div>
+            <div class="text-[11px] font-mono-stat text-amber-300 font-bold mt-0.5">${proj}</div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="font-mono-stat text-2xl font-extrabold text-amber-400 leading-none">${ovr}</div>
+            <div class="text-[9px] uppercase text-slate-400 font-bold mt-0.5">OVR</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5 bg-[#141E36] border border-white/15 rounded-xl p-3 text-xs">
+          <div>
+            <span class="text-[10px] uppercase text-slate-400 font-bold block">Total Career Points</span>
+            <span class="font-mono-stat font-extrabold text-emerald-400 text-sm">${totalPts} pts</span>
+          </div>
+          <div>
+            <label class="text-[10px] uppercase text-slate-400 font-bold block mb-1">Month Played</label>
+            <input type="text" maxlength="16" value="${p.monthPlayed || ''}"
+              onchange="updateProspectMonth('${p.id}', this.value)"
+              class="w-full bg-[#070B14] border border-white/25 rounded-lg px-2 py-1 font-mono-stat font-bold text-amber-300 text-xs focus:outline-none focus:border-amber-400" />
+          </div>
+        </div>
+
+        <!-- Position-Tailored Scouting Evaluation Note -->
+        <div class="bg-[#070B14] border border-white/10 border-l-4 border-l-amber-400 px-3.5 py-3 rounded-xl space-y-1.5">
+          <div class="flex items-center justify-between text-[10px] font-mono-stat uppercase tracking-wider text-slate-400">
+            <span>${report.roleTag}</span>
+            <span class="text-amber-300 font-bold">${report.gradeTagText}</span>
+          </div>
+          <p class="text-xs text-slate-200 leading-relaxed">${report.narrativeText}</p>
+        </div>
+
+        <div>
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-2">Scouting Attribute Breakdown</span>
+          <div class="grid grid-cols-2 gap-2">
+            ${attrRowsHtml}
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          ${p.id !== state.activeProspectId ? `
+            <button type="button" onclick="switchProspect('${p.id}'); closeModal('inspect-prospect-modal');"
+              class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs cursor-pointer transition">
+              Switch to Prospect
+            </button>
+          ` : `
+            <button type="button" onclick="closeModal('inspect-prospect-modal')"
+              class="flex-1 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs cursor-pointer transition">
+              Close File
+            </button>
+          `}
+          ${canDelete ? `
+            <button type="button" onclick="deleteProspectFile('${p.id}')"
+              class="px-3.5 py-2.5 rounded-xl bg-rose-950 hover:bg-rose-800 border border-rose-400/40 text-rose-200 font-bold text-xs cursor-pointer transition">
+              Delete
+            </button>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('inspect-prospect-modal').classList.remove('hidden');
+      document.getElementById('inspect-prospect-modal').classList.add('flex');
+    }
+
+    function updateProspectMonth(prospectId, newMonth) {
+      const p = state.prospects.find(item => item.id === prospectId);
+      if (!p) return;
+      p.monthPlayed = newMonth.trim() || getCurrentMonthLabel();
+      saveState();
+      renderAll();
+      showToast(`Updated Month Played to ${p.monthPlayed}`);
+    }
+
+    function deleteProspectFile(prospectId) {
+      if (state.prospects.length <= 1) {
+        showToast('You must keep at least one prospect file on the roster.');
+        return;
+      }
+      const target = state.prospects.find(item => item.id === prospectId);
+      state.prospects = state.prospects.filter(item => item.id !== prospectId);
+      if (state.activeProspectId === prospectId) {
+        state.activeProspectId = state.prospects[0].id;
+      }
+      saveState();
+      renderAll();
+      closeModal('inspect-prospect-modal');
+      if (target) {
+        showToast(`Removed ${target.name}'s file from the roster.`);
+      }
+    }
+
+    function toggleTask(id) {
+      const active = getActiveProspect();
+      active.todayTasks[id] = !active.todayTasks[id];
+      const cfg = ATTRIBUTE_CONFIG.find(a => a.id === id);
+      if (active.todayTasks[id] && cfg) {
+        showToast(`+${cfg.points} ${cfg.attr} (${cfg.task} complete!)`);
+      }
+      saveState();
+      renderAll();
+    }
+
+    function handleAddTodo(event) {
+      event.preventDefault();
+      const input = document.getElementById('todo-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      state.todos.push({
+        id: 'td_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        text,
+        done: false
+      });
+
+      input.value = '';
+      saveState();
+      renderTodos();
+    }
+
+    function toggleTodo(id) {
+      const item = state.todos.find(t => t.id === id);
+      if (!item) return;
+      item.done = !item.done;
+      saveState();
+      renderTodos();
+    }
+
+    function deleteTodo(id) {
+      state.todos = state.todos.filter(t => t.id !== id);
+      saveState();
+      renderTodos();
+    }
+
+    function clearCompletedTodos() {
+      state.todos = state.todos.filter(t => !t.done);
+      saveState();
+      renderTodos();
+      showToast('Cleared completed tasks from Game Plan.');
+    }
+
+    function toggleNamaz(index) {
+      const active = getActiveProspect();
+      active.todayNamaz[index] = !active.todayNamaz[index];
+      const completed = active.todayNamaz.filter(Boolean).length;
+      if (completed === 5) {
+        showToast('🕌 5/5 Clean Sheet! +7 Discipline bonus unlocked!');
+      }
+      saveState();
+      renderAll();
+    }
+
+    function toggleWaterDroplet(index) {
+      const active = getActiveProspect();
+      const wasComplete = (active.waterFilledCount || 0) >= state.waterTotalDroplets;
+      if (active.waterFilledCount === index) {
+        active.waterFilledCount = index - 1;
+      } else {
+        active.waterFilledCount = index;
+      }
+      const isNowComplete = active.waterFilledCount >= state.waterTotalDroplets;
+      if (!wasComplete && isNowComplete) {
+        showToast('💧 Hydration Goal Hit! +3 Freshness bonus unlocked!');
+      }
+      saveState();
+      renderAll();
+    }
+
+    function updateWaterSettings() {
+      const active = getActiveProspect();
+      const mlVal = parseInt(document.getElementById('water-ml-input').value, 10);
+      const countVal = parseInt(document.getElementById('water-count-input').value, 10);
+
+      if (!isNaN(mlVal) && mlVal >= 50 && mlVal <= 2000) {
+        state.waterMlPerDroplet = mlVal;
+      }
+      if (!isNaN(countVal) && countVal >= 1 && countVal <= 16) {
+        state.waterTotalDroplets = countVal;
+        if ((active.waterFilledCount || 0) > state.waterTotalDroplets) {
+          active.waterFilledCount = state.waterTotalDroplets;
+        }
+      }
+      saveState();
+      renderAll();
+      showToast(`Hydration target set to ${(state.waterMlPerDroplet * state.waterTotalDroplets).toLocaleString()} ml`);
+    }
+
+    function redeemPerk(perkId) {
+      const perk = state.perks.find(p => p.id === perkId);
+      if (!perk) return;
+      if (state.walletPoints < perk.cost) {
+        showToast('Not enough points in your Perk Wallet yet!');
+        return;
+      }
+      state.walletPoints -= perk.cost;
+      saveState();
+      renderAll();
+      showToast(`🎟️ Redeemed: ${perk.name}! Enjoy guilt-free!`);
+    }
+
+    function addCustomPerk() {
+      const nameInput = document.getElementById('custom-perk-name');
+      const costInput = document.getElementById('custom-perk-cost');
+      const name = nameInput.value.trim();
+      const cost = parseInt(costInput.value, 10);
+
+      if (!name || isNaN(cost) || cost < 1) {
+        showToast('Enter a perk name and valid point cost.');
+        return;
+      }
+
+      state.perks.push({
+        id: 'p_' + Date.now(),
+        name,
+        cost
+      });
+      nameInput.value = '';
+      costInput.value = '';
+      saveState();
+      renderPerks();
+      showToast(`Added custom perk: ${name} (${cost} pts)`);
+    }
+
+    function applyMilestoneBonus(points, label, targetAttr) {
+      const active = getActiveProspect();
+      if (targetAttr === 'all') {
+        const perAttr = Math.ceil(points / ATTRIBUTE_CONFIG.length);
+        ATTRIBUTE_CONFIG.forEach(a => {
+          active.bankedAttrXP[a.id] = (active.bankedAttrXP[a.id] || 0) + perAttr;
+        });
+      } else if (active.bankedAttrXP[targetAttr] !== undefined) {
+        active.bankedAttrXP[targetAttr] += points;
+      }
+      active.bankedBonusXP = (active.bankedBonusXP || 0) + points;
+      active.bankedPoints = (active.bankedPoints || 0) + points;
+      state.walletPoints += points;
+      saveState();
+      renderAll();
+      closeModal('bonus-modal');
+      showToast(`⚡ ${label}: +${points} XP & +${points} Wallet Pts!`);
+    }
+
+    function confirmFinishDay() {
+      const active = getActiveProspect();
+      const todayPts = calculateTodayPoints();
+
+      ATTRIBUTE_CONFIG.forEach(item => {
+        if (active.todayTasks[item.id]) {
+          active.bankedAttrXP[item.id] = (active.bankedAttrXP[item.id] || 0) + item.points;
+        }
+        active.todayTasks[item.id] = false;
+      });
+
+      const namazComplete = isNamazEarnedToday();
+      if (namazComplete) {
+        active.bankedAttrXP.discipline = (active.bankedAttrXP.discipline || 0) + 7;
+        active.namazStreak = (active.namazStreak || 0) + 1;
+      } else {
+        active.namazStreak = 0;
+      }
+      active.todayNamaz = [false, false, false, false, false];
+
+      const waterComplete = (active.waterFilledCount || 0) >= state.waterTotalDroplets && state.waterTotalDroplets > 0;
+      if (waterComplete) {
+        active.bankedAttrXP.freshness = (active.bankedAttrXP.freshness || 0) + 3;
+      }
+      active.waterFilledCount = 0;
+
+      state.todos = state.todos.filter(t => !t.done);
+
+      active.bankedPoints = (active.bankedPoints || 0) + todayPts;
+      state.walletPoints += todayPts;
+      active.dayNumber = (active.dayNumber || 1) + 1;
+
+      saveState();
+      renderAll();
+      closeModal('finish-day-modal');
+      showToast(`🔔 Shift banked for ${active.name} (+${todayPts} pts)! Fresh slate ready.`);
+    }
+
+    function openResetModal() {
+      const active = getActiveProspect();
+      const nameEl = document.getElementById('reset-prospect-name');
+      if (nameEl) nameEl.textContent = `${active.name}'s`;
+      document.getElementById('reset-modal').classList.remove('hidden');
+      document.getElementById('reset-modal').classList.add('flex');
+    }
+
+    function confirmResetCareer() {
+      const active = getActiveProspect();
+      const resetCopy = createBlankProspect({
+        id: active.id,
+        name: active.name,
+        number: active.number,
+        position: active.position,
+        team: active.team,
+        monthPlayed: active.monthPlayed
+      });
+      const idx = state.prospects.findIndex(p => p.id === active.id);
+      if (idx !== -1) {
+        state.prospects[idx] = resetCopy;
+      }
+      saveState();
+      renderAll();
+      closeModal('reset-modal');
+      showToast(`${resetCopy.name}'s file reset to Rookie baseline (25 OVR).`);
+    }
+
+    // ==========================================
+    // 6. MODALS & TOAST NOTIFICATIONS
+    // ==========================================
+    function openBonusModal() {
+      document.getElementById('bonus-modal').classList.remove('hidden');
+      document.getElementById('bonus-modal').classList.add('flex');
+    }
+
+    function openFinishDayModal() {
+      const pts = calculateTodayPoints();
+      document.getElementById('modal-today-pts').textContent = pts;
+      document.getElementById('modal-wallet-add').textContent = pts;
+      document.getElementById('finish-day-modal').classList.remove('hidden');
+      document.getElementById('finish-day-modal').classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'bg-[#0F172A] border border-amber-400/80 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl transition-all duration-300';
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    window.onload = function () {
+      loadState();
+      renderAll();
+    };
+  </script>
+</body>
+</html>
